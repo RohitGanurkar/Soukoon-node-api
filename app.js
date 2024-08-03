@@ -19,6 +19,7 @@ const likevideo = require('./routes/likevideo');
 const viewcount = require('./routes/viewcount');
 const userfollow = require('./routes/userfollow');
 const os = require('os');
+const { send } = require('process');
 
 const getIPAddress = () => {
   const interfaces = os.networkInterfaces();
@@ -102,7 +103,9 @@ app.use(function (req, res, next) {
   });
 });
 
-
+app.get('/' , (req , res)=>{
+  res.send('Sukoon is running')
+})
 
 const IpAddress = getIPAddress();
 app.listen(4568, () => {
