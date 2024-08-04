@@ -176,11 +176,11 @@ router.post("/Loginnew", (req, res, next) => {
 
 router.delete("/deleteuserbyId/:userId", (req, res, next) => {
     User.remove({ _id: req.params.userId }).exec().then(result => {
-        res.status(200).json({
+         return res.status(200).json({
             message: "User deleted Successfully",
         });
     }).catch(err => {
-        res.status(500).json({
+        return res.status(500).json({
             error: err
         })
     })
