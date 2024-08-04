@@ -27,26 +27,26 @@ router.post("/Register", (req, res, next) => {
                         //         error: err
                         //     });
                         // } else {
-                            const user = new User({
-                                _id: new mongoose.Types.ObjectId(),
-                                fullName: req.body.fullName,
-                                contact: req.body.contact,
-                                password: hash,
-                                dateofbirth: req.body.dateofbirth,
-                                gender: req.body.gender,
-                                profilepic: req.body.profilepic,
-                                description: req.body.description
+                        const user = new User({
+                            _id: new mongoose.Types.ObjectId(),
+                            fullName: req.body.fullName,
+                            contact: req.body.contact,
+                            password: hash,
+                            dateofbirth: req.body.dateofbirth,
+                            gender: req.body.gender,
+                            profilepic: req.body.profilepic,
+                            description: req.body.description
+                        });
+                        user.save().then(result => {
+                            res.status(200).json({
+                                message: "User Registered Succesfully",
+                                user: result
                             });
-                            user.save().then(result => {
-                                res.status(200).json({
-                                    message: "User Registered Succesfully",
-                                    user: result
-                                });
-                            }).catch(err => {
-                                res.status(500).json({
-                                    error: err
-                                });
-                            })
+                        }).catch(err => {
+                            res.status(500).json({
+                                error: err
+                            });
+                        })
                         // }
                     });
                 }
@@ -176,7 +176,7 @@ router.post("/Loginnew", (req, res, next) => {
 
 router.delete("/deleteuserbyId/:userId", (req, res, next) => {
     User.remove({ _id: req.params.userId }).exec().then(result => {
-         return res.status(200).json({
+        return res.status(200).json({
             message: "User deleted Successfully",
         });
     }).catch(err => {
@@ -185,6 +185,22 @@ router.delete("/deleteuserbyId/:userId", (req, res, next) => {
         })
     })
 });
+
+
+router.post('/delete-user', (req, res) => {
+    const { userId } = req.body
+
+    User.remove({ _id: userId }).exec().then(result => {
+        return res.status(200).json({
+            message: "User deleted Successfully",
+        });
+    }).catch(err => {
+        return res.status(500).json({
+            error: err
+        })
+    })
+
+})
 
 router.delete("/deleteuserbyNo/:usernumber", (req, res, next) => {
     User.remove({ contact: req.params.usernumber }).exec().then(result => {
@@ -197,6 +213,7 @@ router.delete("/deleteuserbyNo/:usernumber", (req, res, next) => {
         })
     })
 });
+
 
 router.patch('/forgetpassword/:userId', async (req, res, next) => {
     try {
@@ -278,7 +295,7 @@ router.get("/allusers", (req, res, next) => {
         // }).catch(err => {
         //     console.log(err);
         // })
-        res.status(200).json({ 
+        res.status(200).json({
             message: "All Users get Successfully",
             result: result
         });
