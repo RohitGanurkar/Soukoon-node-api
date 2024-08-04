@@ -190,7 +190,7 @@ router.delete("/deleteuserbyId/:userId", (req, res, next) => {
 router.post('/delete-user', (req, res) => {
     const { userId } = req.body
 
-    User.remove({ _id: userId }).exec().then(result => {
+    User.deleteOne({ _id: userId }).exec().then(result => {
         return res.status(200).json({
             message: "User deleted Successfully",
         });
