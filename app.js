@@ -36,7 +36,7 @@ const getIPAddress = () => {
 
 
 // const db ='mongodb+srv://sukoon734:sukoon734sukoon@sukoon.prsx3.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
-const db = 'mongodb+srv://rahul:rahul@clustersukoon.tk9czfe.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSukoon' || 'mongodb://127.0.0.1:27017/sukoon'
+const db = 'mongodb+srv://rahul:rahul@clustersukoon.tk9czfe.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSukoon' || ''
 
 
 mongoose.connect(db,
