@@ -189,12 +189,13 @@ router.delete("/deleteuserbyId/:userId", (req, res, next) => {
 
 router.post('/delete-user', (req, res) => {
     const { userId } = req.body
-
+console.log("userId -------> " , userId)
     User.deleteOne({ _id: userId }).exec().then(result => {
         return res.status(200).json({
             message: "User deleted Successfully",
         });
     }).catch(err => {
+        console.log('err in catch delete' )
         return res.status(500).json({
             error: err
         })
