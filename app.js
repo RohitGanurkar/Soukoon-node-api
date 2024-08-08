@@ -36,9 +36,10 @@ const getIPAddress = () => {
 
 
 // const db ='mongodb+srv://sukoon734:sukoon734sukoon@sukoon.prsx3.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
-const db = 'mongodb+srv://rahul:rahul@clustersukoon.tk9czfe.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSukoon' || ''
+// const db = 'mongodb+srv://rahul:rahul@clustersukoon.tk9czfe.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSukoon' || ''
 
-
+const db= "mongodb+srv://rahul:rahul@cluster0.ewmtw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+// const db= "mongodb://127.0.0.1:27017/sukoon"
 mongoose.connect(db,
   { 
     useNewUrlParser: true,
@@ -47,6 +48,7 @@ mongoose.connect(db,
     console.log(`connection Successfully`);
   }).catch((err) => {
     console.log(`no Connection` + "err");
+    console.log(`no Connection` + err);
   })
 
 

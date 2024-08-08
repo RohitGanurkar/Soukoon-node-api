@@ -109,14 +109,69 @@ const upload = multer({ storage: storage });
 
 
 
-router.post('/create', upload.single('topvideo'), (req, res) => {
-  mt.forVideo(
-    './topuploads/' + req.file.path.substring(11),
-    './topuploads/' + req.file.path.substring(11).split('.mp4') + 'thumb.png', { width: 1080, height: 1920 })
-    .then(() => console.log('Success'), err => console.error(err));
+// router.post('/create', upload.single('topvideo'), (req, res) => {
+//   mt.forVideo(
+//     './topuploads/' + req.file.path.substring(11),
+//     './topuploads/' + req.file.path.substring(11).split('.mp4') + 'thumb.png', { width: 1080, height: 1920 })
+//     .then(() => console.log('Success'), err => console.error(err));
 
-  compress('topuploads/' + req.file.path.substring(11).split('.mp4') + 'compress.mp4', req.file.path).then(data => {
-    fs.unlinkSync(req.file.path);
+//   compress('topuploads/' + req.file.path.substring(11).split('.mp4') + 'compress.mp4', req.file.path).then(data => {
+//     fs.unlinkSync(req.file.path);
+//     const videoobj = new topVideo({
+//       _id: new mongoose.Types.ObjectId(),
+//       userid: req.body.userid,
+//       soundid: req.body.soundid,
+//       username: req.body?.username || "user",
+//       tittle: req.body?.tittle || "hy",
+//       description: req.body.description,
+//       video: 'topuploads/' + req.file.path.substring(11).split('.mp4') + 'compress.mp4',
+//       thumbnail: 'topuploads/' + req.file.path.substring(11).split('.mp4') + 'thumb.png',
+//       publish: req.body.publish
+//     });
+
+//     videoobj.save().then(result => {
+//       return res.status(201).json({
+//         message: "Upload Video Successfully",
+//         result: result,
+//       })
+//     }).catch(err => {
+//       console.log("ccccccc" , err)
+//       return res.status(500).json({
+//         message: "Something Went Wrong",
+//         error: err
+//       })
+//     })
+//   }).catch(err => {
+//     console.log("ttttt" , err)
+//     return res.status(500).json({
+//       message: "Something Went Wrong",
+//       error: err
+//     })
+//   });
+// });
+
+router.post('/create', upload.single('topvideo'), async (req, res) => {
+  try {
+    // Construct file paths
+    const filePath = req.file.path;
+    const fileName = path.basename(filePath); // Extract the file name
+    const thumbPath = path.join('./topuploads', `${fileName.split('.mp4')[0]}thumb.png`);
+    const compressPath = path.join('./topuploads', `${fileName.split('.mp4')[0]}compress.mp4`);
+
+    // Generate thumbnail
+    mt.forVideo(filePath, thumbPath, { width: 1080, height: 1920, loglevel: 'debug' })
+      .then(() => console.log('Success'))
+      .catch(err => console.error('Error:', err));
+    console.log('Thumbnail generated successfully');
+
+    // Compress video
+    await compress(compressPath, filePath);
+    console.log('Video compressed successfully');
+
+    // Remove the original file
+    fs.unlinkSync(filePath);
+
+    // Create video object and save to database
     const videoobj = new topVideo({
       _id: new mongoose.Types.ObjectId(),
       userid: req.body.userid,
@@ -124,31 +179,28 @@ router.post('/create', upload.single('topvideo'), (req, res) => {
       username: req.body?.username || "user",
       tittle: req.body?.tittle || "hy",
       description: req.body.description,
-      video: 'topuploads/' + req.file.path.substring(11).split('.mp4') + 'compress.mp4',
-      thumbnail: 'topuploads/' + req.file.path.substring(11).split('.mp4') + 'thumb.png',
+      video: compressPath,
+      thumbnail: thumbPath,
       publish: req.body.publish
     });
 
-    videoobj.save().then(result => {
-      return res.status(201).json({
-        message: "Upload Video Successfully",
-        result: result,
-      })
-    }).catch(err => {
-      console.log("ccccccc" , err)
-      return res.status(500).json({
-        message: "Something Went Wrong",
-        error: err
-      })
-    })
-  }).catch(err => {
-    console.log("ttttt" , err)
+    const result = await videoobj.save();
+    return res.status(201).json({
+      message: "Upload Video Successfully",
+      result: result,
+    });
+
+  } catch (err) {
+    console.log("Error occurred:", err);
     return res.status(500).json({
       message: "Something Went Wrong",
       error: err
-    })
-  });
+    });
+  }
 });
+
+
+
 
 function metadata(path) {
   return new Promise((resolve, reject) => {
@@ -211,7 +263,7 @@ router.get('/view', async (req, res) => {
     await topVideo.find({ publish: true }).populate('userid').exec().then(result => {
       res.status(201).json({
         message: "get all Video Successfully",
-        result : videos
+        result: videos
       })
     })
   } catch (error) {
@@ -224,7 +276,7 @@ router.get('/view', async (req, res) => {
 });
 
 // http://192.168.29.184:5000
-router.get('/view2',async (req, res) => {
+router.get('/view2', async (req, res) => {
   try {
     await topVideo.find({ publish: true }).populate('userid').exec().then(result => {
       // i(result);
@@ -247,13 +299,13 @@ router.get('/view2',async (req, res) => {
 });
 
 function na2(id) {
-  shortslike.find({videoid:id}).countDocuments().then(result2=>{
-    return result2;  
-    }).then(data2=>{
-      console.log(data2);
-    }).catch(err2=>{
-      console.log(err2);
-    });
+  shortslike.find({ videoid: id }).countDocuments().then(result2 => {
+    return result2;
+  }).then(data2 => {
+    console.log(data2);
+  }).catch(err2 => {
+    console.log(err2);
+  });
 }
 
 // function i(v){
@@ -273,17 +325,17 @@ function na2(id) {
 
 
 
-router.get('/likecount/:videoid',(req,res)=>{
-  shortslike.find({videoid:req.params.videoid}).countDocuments().then(result=>{
-      res.status(201).json({
-          message:"get likecount Successfully",
-          result:result
-      })
-      }).catch(err=>{
-          res.status(500).json({
-              message:"Something Went Wrong",
-              error:err
-          })
+router.get('/likecount/:videoid', (req, res) => {
+  shortslike.find({ videoid: req.params.videoid }).countDocuments().then(result => {
+    res.status(201).json({
+      message: "get likecount Successfully",
+      result: result
+    })
+  }).catch(err => {
+    res.status(500).json({
+      message: "Something Went Wrong",
+      error: err
+    })
   })
 });
 
